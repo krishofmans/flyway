@@ -35,7 +35,7 @@ public class MigrationInfoImplSmallTest {
         resolvedMigration.setType(type);
         resolvedMigration.setChecksum(456);
 
-        AppliedMigration appliedMigration = new AppliedMigration(version, description, type, null, 123, 0, true);
+        AppliedMigration appliedMigration = new AppliedMigration(version, description, type, null, 123, 0, true, null);
 
         MigrationInfoImpl migrationInfo =
                 new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext());

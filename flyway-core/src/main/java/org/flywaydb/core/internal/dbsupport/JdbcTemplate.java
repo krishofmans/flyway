@@ -228,7 +228,8 @@ public class JdbcTemplate {
      * @param sql The statement to execute.
      * @throws SQLException when the execution failed.
      */
-    public void executeStatement(String sql) throws SQLException {
+    public int executeStatement(String sql) throws SQLException {
+        int rowsUpdated = 0;
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -236,6 +237,7 @@ public class JdbcTemplate {
             boolean hasResults = false;
             try {
                 hasResults = statement.execute(sql);
+                rowsUpdated = statement.getUpdateCount();
             } finally {
                 @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
                 while (warning != null) {
@@ -255,6 +257,7 @@ public class JdbcTemplate {
         } finally {
             JdbcUtils.closeStatement(statement);
         }
+        return rowsUpdated;
     }
 
     /**

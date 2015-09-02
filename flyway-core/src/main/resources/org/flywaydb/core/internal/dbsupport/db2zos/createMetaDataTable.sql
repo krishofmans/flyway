@@ -42,6 +42,7 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_on" TIMESTAMP NOT NULL WITH DEFAULT,
     "execution_time" INT NOT NULL,
     "success" SMALLINT NOT NULL,
+    "sql_output" VARCHAR(1000),
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 )
 IN "${schema}".SDBVERS

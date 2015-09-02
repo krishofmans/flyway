@@ -60,4 +60,9 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
      * @return The execution time (in millis) of this migration. (Only for applied migrations)
      */
     Integer getExecutionTime();
+
+    /**
+     * @return The SQL output of the migration
+     */
+    String getSqlOutput();
 }

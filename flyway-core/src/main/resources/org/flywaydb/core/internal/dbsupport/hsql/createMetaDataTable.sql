@@ -25,7 +25,8 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_by" VARCHAR(100) NOT NULL,
     "installed_on" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "execution_time" INT NOT NULL,
-    "success" BIT NOT NULL
+    "success" BIT NOT NULL,
+    "sql_output" VARCHAR(1000) 
 );
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
 

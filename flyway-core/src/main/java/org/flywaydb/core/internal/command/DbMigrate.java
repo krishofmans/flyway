@@ -37,6 +37,8 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Main workflow for migrating the database.
@@ -46,6 +48,8 @@ import java.sql.SQLException;
 public class DbMigrate {
 
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
+
+    private static final String SQL_OUTPUT = "SQL_OUTPUT";
 
     /**
      * The target version of the migration.
@@ -193,7 +197,8 @@ public class DbMigrate {
                                 && ignoreFailedFutureMigration) {
                             LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                         } else {
-                            throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
+                            throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " " +
+                                    "!");
                         }
                     }
 
@@ -247,7 +252,8 @@ public class DbMigrate {
         if (migrationSuccessCount == 1) {
             LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
         } else {
-            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
+            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format
+                    (executionTime) + ").");
         }
     }
 
@@ -259,6 +265,7 @@ public class DbMigrate {
      * @return The result of the migration.
      */
     private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
+        final Map sqlOutput = new HashMap();
         MigrationVersion version = migration.getVersion();
         LOG.info("Migrating schema " + schema + " to version " + version + " - " + migration.getDescription() +
                 (isOutOfOrder ? " (out of order)" : ""));
@@ -281,13 +288,13 @@ public class DbMigrate {
             if (migrationExecutor.executeInTransaction()) {
                 new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                     public Void doInTransaction() throws SQLException {
-                        migrationExecutor.execute(connectionUserObjects);
+                        sqlOutput.put(SQL_OUTPUT, migrationExecutor.execute(connectionUserObjects));
                         return null;
                     }
                 });
             } else {
                 try {
-                    migrationExecutor.execute(connectionUserObjects);
+                    sqlOutput.put(SQL_OUTPUT, migrationExecutor.execute(connectionUserObjects));
                 } catch (SQLException e) {
                     throw new FlywayException("Unable to apply migration", e);
                 }
@@ -313,7 +320,8 @@ public class DbMigrate {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
+                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false, (String) sqlOutput.get
+                        (SQL_OUTPUT));
                 metaDataTable.addAppliedMigration(appliedMigration);
             }
             throw e;
@@ -323,9 +331,10 @@ public class DbMigrate {
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true);
+                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true, (String) sqlOutput.get(SQL_OUTPUT));
         metaDataTable.addAppliedMigration(appliedMigration);
 
         return version;
     }
+
 }

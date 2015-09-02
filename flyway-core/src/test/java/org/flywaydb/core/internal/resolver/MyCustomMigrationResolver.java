@@ -67,8 +67,9 @@ public class MyCustomMigrationResolver implements MigrationResolver {
             public MigrationExecutor getExecutor() {
                 return new MigrationExecutor() {
                     @Override
-                    public void execute(Connection connection) {
+                    public String execute(Connection connection) {
                         System.out.println("Executed !");
+                        return null;
                     }
 
                     @Override

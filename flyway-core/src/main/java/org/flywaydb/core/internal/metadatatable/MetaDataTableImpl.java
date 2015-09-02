@@ -123,8 +123,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                             + "," + dbSupport.quote("installed_by")
                             + "," + dbSupport.quote("execution_time")
                             + "," + dbSupport.quote("success")
+                            + "," + dbSupport.quote("sql_output")
                             + ")"
-                            + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
+                            + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, ?)",
                     versionRank,
                     calculateInstalledRank(),
                     version.toString(),
@@ -133,11 +134,20 @@ public class MetaDataTableImpl implements MetaDataTable {
                     appliedMigration.getScript(),
                     appliedMigration.getChecksum(),
                     appliedMigration.getExecutionTime(),
-                    appliedMigration.isSuccess()
+                    appliedMigration.isSuccess(),
+                    limitSqlOutput(appliedMigration.getSqlOutput())
             );
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
             throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
+        }
+    }
+
+    private String limitSqlOutput(final String sqlOutput) {
+        if (sqlOutput != null && sqlOutput.length() > 1000) {
+            return sqlOutput.substring(0, 999);
+        } else {
+            return sqlOutput;
         }
     }
 
@@ -206,6 +216,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 + "," + dbSupport.quote("installed_by")
                 + "," + dbSupport.quote("execution_time")
                 + "," + dbSupport.quote("success")
+                + "," + dbSupport.quote("sql_output")
                 + " FROM " + table;
 
         if (migrationTypes.length > 0) {
@@ -240,7 +251,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                             rs.getTimestamp("installed_on"),
                             rs.getString("installed_by"),
                             rs.getInt("execution_time"),
-                            rs.getBoolean("success")
+                            rs.getBoolean("success"),
+                            rs.getString("sql_output")
                     );
                 }
             });
@@ -253,7 +265,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     @Override
     public void addBaselineMarker(final MigrationVersion baselineVersion, final String baselineDescription) {
         addAppliedMigration(new AppliedMigration(baselineVersion, baselineDescription, MigrationType.BASELINE, baselineDescription, null,
-                0, true));
+                0, true, null));
     }
 
     @Override
@@ -289,7 +301,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         createIfNotExists();
 
         addAppliedMigration(new AppliedMigration(MigrationVersion.fromVersion("0"), "<< Flyway Schema Creation >>",
-                MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
+                MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true, null));
     }
 
     @Override

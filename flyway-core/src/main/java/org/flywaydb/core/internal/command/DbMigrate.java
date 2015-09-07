@@ -37,8 +37,6 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Main workflow for migrating the database.
@@ -265,7 +263,7 @@ public class DbMigrate {
      * @return The result of the migration.
      */
     private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
-        final Map sqlOutput = new HashMap();
+        String sqlOutput = "";
         MigrationVersion version = migration.getVersion();
         LOG.info("Migrating schema " + schema + " to version " + version + " - " + migration.getDescription() +
                 (isOutOfOrder ? " (out of order)" : ""));
@@ -286,15 +284,17 @@ public class DbMigrate {
 
             final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
             if (migrationExecutor.executeInTransaction()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
+                final TransactionTemplate transactionTemplate = new TransactionTemplate(connectionUserObjects);
+                transactionTemplate.execute(new TransactionCallback<Void>() {
                     public Void doInTransaction() throws SQLException {
-                        sqlOutput.put(SQL_OUTPUT, migrationExecutor.execute(connectionUserObjects));
+                        transactionTemplate.setSqlOutput(migrationExecutor.execute(connectionUserObjects));
                         return null;
                     }
                 });
+                sqlOutput = transactionTemplate.getSqlOutput();
             } else {
                 try {
-                    sqlOutput.put(SQL_OUTPUT, migrationExecutor.execute(connectionUserObjects));
+                    sqlOutput = migrationExecutor.execute(connectionUserObjects);
                 } catch (SQLException e) {
                     throw new FlywayException("Unable to apply migration", e);
                 }
@@ -320,8 +320,7 @@ public class DbMigrate {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false, (String) sqlOutput.get
-                        (SQL_OUTPUT));
+                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false, sqlOutput);
                 metaDataTable.addAppliedMigration(appliedMigration);
             }
             throw e;
@@ -331,7 +330,7 @@ public class DbMigrate {
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true, (String) sqlOutput.get(SQL_OUTPUT));
+                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true, sqlOutput);
         metaDataTable.addAppliedMigration(appliedMigration);
 
         return version;

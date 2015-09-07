@@ -26,7 +26,7 @@ CREATE TABLE `${schema}`.`${table}` (
     `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `execution_time` INT NOT NULL,
     `success` BOOL NOT NULL,
-    `sql_output` VARCHAR(1000) NOT NULL
+    `sql_output` VARCHAR(1000)
 ) ENGINE=InnoDB;
 ALTER TABLE `${schema}`.`${table}` ADD CONSTRAINT `${table}_pk` PRIMARY KEY (`version`);
 

@@ -47,8 +47,6 @@ public class DbMigrate {
 
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
-    private static final String SQL_OUTPUT = "SQL_OUTPUT";
-
     /**
      * The target version of the migration.
      */

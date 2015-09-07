@@ -141,8 +141,9 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
         }
 
         @Override
-        public void execute(Connection connection) throws SQLException {
+        public String execute(Connection connection) throws SQLException {
             jdbcTemplate.executeStatement(data);
+            return null;
         }
 
         @Override

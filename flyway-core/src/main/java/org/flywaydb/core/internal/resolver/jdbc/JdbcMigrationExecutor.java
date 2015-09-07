@@ -40,12 +40,13 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public void execute(Connection connection) {
+    public String execute(Connection connection) {
         try {
             jdbcMigration.migrate(connection);
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }
+        return null;
     }
 
     @Override

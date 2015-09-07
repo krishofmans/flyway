@@ -26,6 +26,7 @@ CREATE TABLE ${schema}.${table} (
     installed_on TIMESTAMP,
     execution_time INT NOT NULL,
     success SMALLINT NOT NULL,
+    sql_output VARCHAR(1000),
     PRIMARY KEY(version)
 ) STORE DISK;
 

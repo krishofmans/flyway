@@ -25,7 +25,8 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_by" VARCHAR(100) NOT NULL,
     "installed_on" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),
     "execution_time" INT NOT NULL,
-    "success" BOOLEAN NOT NULL
+    "success" BOOLEAN NOT NULL,
+    "sql_output" VARCHAR(1000)
 );
 
 CREATE INDEX "${schema}"."${table}_vr_idx" ON "${table}" ("version_rank");

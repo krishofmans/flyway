@@ -52,6 +52,10 @@ public class SqlScript {
      */
     private final Resource resource;
 
+    private StringBuilder sqlOutput;
+
+    private SqlLogOutputService logOutputService = new SqlLogOutputService();
+
     /**
      * Creates a new sql script from this source.
      *
@@ -62,6 +66,7 @@ public class SqlScript {
         this.dbSupport = dbSupport;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
+        this.sqlOutput = new StringBuilder();
     }
 
     /**
@@ -79,6 +84,7 @@ public class SqlScript {
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
         this.resource = sqlScriptResource;
+        this.sqlOutput = new StringBuilder();
     }
 
     /**
@@ -98,6 +104,15 @@ public class SqlScript {
     }
 
     /**
+     * Contains the rows updated for each SQL statement executed
+     *
+     * @return The SQL log output
+     */
+    public String getSqlOutput() {
+        return sqlOutput.toString();
+    }
+
+    /**
      * Executes this script against the database.
      *
      * @param jdbcTemplate The jdbc template to use to execute this script.
@@ -111,12 +126,16 @@ public class SqlScript {
                 if (sqlStatement.isPgCopy()) {
                     dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
                 } else {
-                    jdbcTemplate.executeStatement(sql);
+                    appendSqlOutputBasedOnRowsUpdated(sql, jdbcTemplate.executeStatement(sql));
                 }
             } catch (SQLException e) {
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
             }
         }
+    }
+
+    private void appendSqlOutputBasedOnRowsUpdated(final String sql, final int rowsUpdated) {
+        sqlOutput.append(logOutputService.getLogOutputBasedOnSql(sql, rowsUpdated));
     }
 
     /**

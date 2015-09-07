@@ -41,13 +41,14 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public void execute(Connection connection) {
+    public String execute(Connection connection) {
         try {
             springJdbcMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
                     new SingleConnectionDataSource(connection, true)));
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }
+        return null;
     }
 
     @Override

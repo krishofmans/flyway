@@ -69,7 +69,7 @@ public class SampleResolver implements MigrationResolver {
             public MigrationExecutor getExecutor() {
                 return new MigrationExecutor() {
                     @Override
-                    public void execute(Connection connection) throws SQLException {
+                    public String execute(Connection connection) throws SQLException {
                         Statement statement = null;
                         try {
                             statement = connection.createStatement();
@@ -77,6 +77,7 @@ public class SampleResolver implements MigrationResolver {
                         } finally {
                             JdbcUtils.closeStatement(statement);
                         }
+                        return null;
                     }
 
                     @Override

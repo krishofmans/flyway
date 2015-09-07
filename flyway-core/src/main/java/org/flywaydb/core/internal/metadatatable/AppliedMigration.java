@@ -80,6 +80,11 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     private boolean success;
 
     /**
+     * the SQL output of this migration
+     */
+    private String sqlOutput;
+
+    /**
      * Creates a new applied migration. Only called from the RowMapper.
      *
      * @param versionRank   The position of this version amongst all others. (For easy order by sorting)
@@ -95,8 +100,8 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      * @param success       Flag indicating whether the migration was successful or not.
      */
     public AppliedMigration(int versionRank, int installedRank, MigrationVersion version, String description,
-                     MigrationType type, String script, Integer checksum, Date installedOn,
-                     String installedBy, int executionTime, boolean success) {
+                            MigrationType type, String script, Integer checksum, Date installedOn,
+                            String installedBy, int executionTime, boolean success, String sqlOutput) {
         this.versionRank = versionRank;
         this.installedRank = installedRank;
         this.version = version;
@@ -108,6 +113,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         this.installedBy = installedBy;
         this.executionTime = executionTime;
         this.success = success;
+        this.sqlOutput = sqlOutput;
     }
 
     /**
@@ -120,9 +126,10 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      * @param checksum      The checksum of the migration. (Optional)
      * @param executionTime The execution time (in millis) of this migration.
      * @param success       Flag indicating whether the migration was successful or not.
+     * @param sqlOutput     The sql output of this migration
      */
     public AppliedMigration(MigrationVersion version, String description, MigrationType type, String script,
-                            Integer checksum, int executionTime, boolean success) {
+                            Integer checksum, int executionTime, boolean success, String sqlOutput) {
         this.version = version;
         this.description = abbreviateDescription(description);
         this.type = type;
@@ -130,6 +137,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         this.checksum = checksum;
         this.executionTime = executionTime;
         this.success = success;
+        this.sqlOutput = sqlOutput;
     }
 
     /**
@@ -243,6 +251,13 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      */
     public boolean isSuccess() {
         return success;
+    }
+
+    /**
+     * @return the SQL output of of this migration.
+     */
+    public String getSqlOutput() {
+        return sqlOutput;
     }
 
     @SuppressWarnings("SimplifiableIfStatement")

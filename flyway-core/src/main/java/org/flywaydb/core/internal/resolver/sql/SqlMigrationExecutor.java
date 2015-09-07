@@ -66,9 +66,10 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public void execute(Connection connection) {
+    public String execute(Connection connection) {
         SqlScript sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, encoding);
         sqlScript.execute(new JdbcTemplate(connection, 0));
+        return sqlScript.getSqlOutput();
     }
 
     @Override

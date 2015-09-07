@@ -26,6 +26,7 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_on" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
     "execution_time" INT NOT NULL,
     "success" SMALLINT NOT NULL,
+    "sql_output" VARCHAR(1000),
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 );
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");

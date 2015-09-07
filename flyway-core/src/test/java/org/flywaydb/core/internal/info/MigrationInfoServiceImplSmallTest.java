@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.info;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.metadatatable.AppliedMigration;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
 
@@ -205,7 +205,7 @@ public class MigrationInfoServiceImplSmallTest {
      */
     private AppliedMigration createAppliedMigration(int version, String description) {
         return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), description,
-                MigrationType.SQL, "x", null, new Date(), "sa", 123, true);
+                MigrationType.SQL, "x", null, new Date(), "sa", 123, true, null);
     }
 
     /**
@@ -216,7 +216,7 @@ public class MigrationInfoServiceImplSmallTest {
      */
     private AppliedMigration createAppliedInitMigration(int version) {
         return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
-                MigrationType.INIT, "x", null, new Date(), "sa", 0, true);
+                MigrationType.INIT, "x", null, new Date(), "sa", 0, true, null);
     }
 
     /**
@@ -226,7 +226,7 @@ public class MigrationInfoServiceImplSmallTest {
      */
     private AppliedMigration createAppliedSchemaMigration() {
         return new AppliedMigration(0, 0, MigrationVersion.fromVersion(Integer.toString(0)), "<< Schema Creation >>",
-                MigrationType.SCHEMA, "x", null, new Date(), "sa", 0, true);
+                MigrationType.SCHEMA, "x", null, new Date(), "sa", 0, true, null);
     }
 
     /**

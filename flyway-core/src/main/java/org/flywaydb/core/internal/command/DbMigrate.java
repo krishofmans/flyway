@@ -193,7 +193,8 @@ public class DbMigrate {
                                 && ignoreFailedFutureMigration) {
                             LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                         } else {
-                            throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
+                            throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " " +
+                                    "!");
                         }
                     }
 
@@ -247,7 +248,8 @@ public class DbMigrate {
         if (migrationSuccessCount == 1) {
             LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
         } else {
-            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
+            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format
+                    (executionTime) + ").");
         }
     }
 
@@ -259,6 +261,7 @@ public class DbMigrate {
      * @return The result of the migration.
      */
     private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
+        String sqlOutput = "";
         MigrationVersion version = migration.getVersion();
         LOG.info("Migrating schema " + schema + " to version " + version + " - " + migration.getDescription() +
                 (isOutOfOrder ? " (out of order)" : ""));
@@ -279,15 +282,17 @@ public class DbMigrate {
 
             final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
             if (migrationExecutor.executeInTransaction()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
+                final TransactionTemplate transactionTemplate = new TransactionTemplate(connectionUserObjects);
+                transactionTemplate.execute(new TransactionCallback<Void>() {
                     public Void doInTransaction() throws SQLException {
-                        migrationExecutor.execute(connectionUserObjects);
+                        transactionTemplate.setSqlOutput(migrationExecutor.execute(connectionUserObjects));
                         return null;
                     }
                 });
+                sqlOutput = transactionTemplate.getSqlOutput();
             } else {
                 try {
-                    migrationExecutor.execute(connectionUserObjects);
+                    sqlOutput = migrationExecutor.execute(connectionUserObjects);
                 } catch (SQLException e) {
                     throw new FlywayException("Unable to apply migration", e);
                 }
@@ -313,7 +318,7 @@ public class DbMigrate {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
+                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false, sqlOutput);
                 metaDataTable.addAppliedMigration(appliedMigration);
             }
             throw e;
@@ -323,9 +328,10 @@ public class DbMigrate {
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true);
+                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true, sqlOutput);
         metaDataTable.addAppliedMigration(appliedMigration);
 
         return version;
     }
+
 }

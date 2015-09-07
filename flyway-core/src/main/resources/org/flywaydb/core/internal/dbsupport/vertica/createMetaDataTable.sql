@@ -25,7 +25,8 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_by" VARCHAR(100) NOT NULL,
     "installed_on" TIMESTAMP NOT NULL DEFAULT now(),
     "execution_time" INTEGER NOT NULL,
-    "success" BOOLEAN NOT NULL
+    "success" BOOLEAN NOT NULL,
+    "sql_output" VARCHAR(1000)
 ) order by "version";
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
 

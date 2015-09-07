@@ -25,7 +25,8 @@ CREATE TABLE [${schema}].[${table}] (
     [installed_by] NVARCHAR(100) NOT NULL,
     [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),
     [execution_time] INT NOT NULL,
-    [success] BIT NOT NULL
+    [success] BIT NOT NULL,
+    [sql_output] NVARCHAR(1000)
 );
 ALTER TABLE [${schema}].[${table}] ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([version]);
 

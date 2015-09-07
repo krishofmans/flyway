@@ -28,6 +28,8 @@ import java.sql.SQLException;
 public class TransactionTemplate {
     private static final Log LOG = LogFactory.getLog(TransactionTemplate.class);
 
+    private String sqlOutput;
+
     /**
      * The connection for the transaction.
      */
@@ -99,4 +101,14 @@ public class TransactionTemplate {
             }
         }
     }
+
+    public String getSqlOutput() {
+        return sqlOutput;
+    }
+
+    public void setSqlOutput(final String sqlOutput) {
+        this.sqlOutput = sqlOutput;
+    }
+
+
 }
